@@ -1,34 +1,58 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import Controls from './components/Controls'
+import Bol from './components/Bol'
+import Beat from './components/Beat'
+import HowToUseModal from './components/Modal'
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTaal, setSelectedTaal] = useState('teentaal');
+  const [selectedLay, setSelectedLay] = useState('barabar');
+  const [selectedBpm, setSelectedBpm] = useState('100');
+  const [isPlaying, setIsPlaying] = useState(false);
+  
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+    <div className="min-h-screen flex flex-col p-4">
+      <header className="flex flex-row justify-between items-center">
+        <h1 className='text-3xl font-bold'>Laykari Trainer</h1>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-900 whitespace-nowrap"
+        >
+          How to Use This Tool
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+      </header>
+      
+      <HowToUseModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      
+      <div className="grow">
+        <Controls 
+          selectedTaal={selectedTaal}
+          setSelectedTaal={setSelectedTaal}
+          selectedLay={selectedLay}
+          setSelectedLay={setSelectedLay}
+          selectedBpm={selectedBpm}
+          setSelectedBpm={setSelectedBpm}
+        />
+        <Bol 
+          isPlaying={isPlaying}
+          setIsPlaying={setIsPlaying}
+          selectedTaal={selectedTaal}
+          selectedLay={selectedLay}
+          selectedBpm={parseInt(selectedBpm) || 100}
+        />
+        <Beat
+        isPlaying={isPlaying}
+          setIsPlaying={setIsPlaying}
+        selectedTaal={selectedTaal}
+          selectedBpm={parseInt(selectedBpm) || 100}></Beat>
       </div>
-      <p className="text-3xl">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+      
+      <footer className="mt-auto py-4 text-center">
+        <p>Built with ❤️ by <span className='text-blue-200'><a href="https://www.linkedin.com/in/ameya-sambhus-b504912bb/" target='blank'>Ameya Sambhus</a></span></p>
+      </footer>
+    </div>
   )
 }
 

@@ -37,6 +37,16 @@ function Bol({ isPlaying, setIsPlaying, selectedTaal, selectedLay, selectedBpm }
     }
   };
 
+  // Helper function to check if current index is a taali position
+  const isTaali = (index: number) => {
+    return taal.taali?.includes(index + 1) || false;
+  };
+
+  // Helper function to check if current index is a khali position
+  const isKhali = (index: number) => {
+    return taal.khali?.includes(index + 1) || false;
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="p-6 rounded-lg">
@@ -65,7 +75,9 @@ function Bol({ isPlaying, setIsPlaying, selectedTaal, selectedLay, selectedBpm }
               } ${
                 index === 0 ? 'ring-4 ring-blue-500' : '' // Highlight Sam
               } ${
-                index === taal.khali - 1 ? 'ring-4 ring-red-500' : '' // Highlight Khali
+                isKhali(index) ? 'ring-4 ring-red-700' : '' // Highlight Khali
+              } ${
+                isTaali(index) ? 'ring-4 ring-green-500' : '' // Highlight Taali
               }`}
             >
               {bol}
@@ -76,7 +88,8 @@ function Bol({ isPlaying, setIsPlaying, selectedTaal, selectedLay, selectedBpm }
         <div className="mt-6 text-center text-sm text-gray-400">
           <p className="mt-2">
             <span className="inline-block w-4 h-4 bg-blue-500 rounded mr-2"></span>Sam
-            <span className="inline-block w-4 h-4 bg-red-500 rounded ml-4 mr-2"></span>Khali
+            <span className="inline-block w-4 h-4 bg-green-500 rounded ml-4 mr-2"></span>Taali
+            <span className="inline-block w-4 h-4 bg-red-700 rounded ml-4 mr-2"></span>Khali
           </p>
         </div>
       </div>

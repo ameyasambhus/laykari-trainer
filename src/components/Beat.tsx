@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { taals } from '../data';
 
 interface BeatProps {
@@ -10,6 +10,7 @@ interface BeatProps {
 
 function Beat({ selectedTaal, selectedBpm, isPlaying}: BeatProps) {
   const [currentBeatIndex, setCurrentBeatIndex] = useState(0);
+  const audioContextRef = useRef<AudioContext | null>(null);
 
   const taal = taals[selectedTaal as keyof typeof taals];
   
@@ -18,14 +19,66 @@ function Beat({ selectedTaal, selectedBpm, isPlaying}: BeatProps) {
   // With lay multiplier, the speed increases
   const BeatInterval = (60000 / selectedBpm);
 
+  // Initialize AudioContext
+  useEffect(() => {
+    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    return () => {
+      audioContextRef.current?.close();
+    };
+  }, []);
+
+  // Function to play metronome tick
+  const playTick = (index: number) => {
+    if (!audioContextRef.current) return;
+    
+    const ctx = audioContextRef.current;
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    
+    // Different frequencies for different beat types
+    let frequency = 800; // Regular beat
+    let duration = 0.05; // Short click
+    
+    if (index === 0) {
+      // Sam - highest pitch, longer
+      frequency = 1200;
+      duration = 0.08;
+    } else if (isKhali(index)) {
+      // Khali - lower pitch
+      frequency = 600;
+      duration = 0.06;
+    }
+    
+    oscillator.frequency.value = frequency;
+    oscillator.type = 'sine';
+    
+    // Envelope for click sound
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+    
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + duration);
+  };
+
   useEffect(() => {
     if (!isPlaying){
         setCurrentBeatIndex(0);
         return;
     } 
 
+    // Play tick immediately when starting
+    playTick(0);
+
     const timer = setInterval(() => {
-      setCurrentBeatIndex((prevIndex) => (prevIndex + 1) % taal.theka.length);
+      setCurrentBeatIndex((prevIndex) => {
+        const newIndex = (prevIndex + 1) % taal.theka.length;
+        playTick(newIndex);
+        return newIndex;
+      });
     }, BeatInterval);
 
     return () => clearInterval(timer);
